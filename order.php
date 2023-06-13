@@ -3,6 +3,7 @@
 
  if(isset($_GET['cino'])){
     $cino=$_GET['cino'];
+
     if(!empty($cino)){
       
 
@@ -95,3 +96,5 @@
        
     }
  }
+
+ ?>
