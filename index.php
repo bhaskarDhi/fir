@@ -90,7 +90,7 @@
                     </div>
                     <div style="text-align: center;margin-top: 8px;margin-bottom: 4px;">
                         <button class="btn" id="search" style="background-color: #1d785b;color: aliceblue;">Search</button>
-                        <button id="exit"class="btn btn-danger">Exit</button>
+                        <button id="exit" class="btn btn-danger">Exit</button>
                     </div>
 
                 </div>
@@ -136,6 +136,45 @@
             </div>
 
         </div>
+        <div class="row" id="display">
+
+            <div class="col-md-12" style="text-align: center;border: 1px solid black;height: auto;margin-top: 23px;">
+                <p style="font-weight: 800;"><u>Party details</u></p>
+                <p style="font-size: larger;font-weight: 600;" id="case_status"></p>
+
+            </div>
+
+        </div>
+        <div class="row" id="order_table">
+
+
+            <div class="col-md-12" style="border: 1px solid black;height: auto;margin-top: 23px;">
+                <div>
+                    <P style="text-align: center;font-size: larger;font-weight: 500;"><u>Orders</u></P>
+                </div>
+                <div>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sl No</th>
+                              
+                                <th scope="col">Date of Order</th>
+                                <th scope="col">Judge</th>
+                                <th scope="col">Order Details</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="order_details">
+
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+
+        </div>
+
 
     </div>
 
@@ -157,8 +196,10 @@
 
 
 <script>
-    $(document).ready(function(){
+    $(document).ready(function() {
         $("#case_table").hide();
+        $("#order_table").hide();
+        $("#display").hide();
     });
     $(document).on('change', '#dis', function() {
         var id = this.value;
@@ -180,6 +221,7 @@
                 console.log(data)
                 $.each(JSON.parse(data), function(key, value) {
                     $('#police').append(`<option value="${value.police_st_code}">${value.police_st_name}</option>`)
+                    // $('#police').append(""<option value='+value.police_st_code'>'+value.police_st_name'</option>")
                 })
             },
 
@@ -219,17 +261,23 @@
                 // request is ok
                 success: function(data) {
                     $('#case_table').show();
-                    console.log(data.error)
-                    $.each(JSON.parse(data), function(key, value) {
+                        console.log(data)
+                    data =JSON.parse(data)
+                    if(!data.error){
+                        $.each(data, function(key, value) {
                         var date = new Date(value.dt_regis);
-                            if (!isNaN(date.getTime())) {
+                        if (!isNaN(date.getTime())) {
 
-                                var month = date.getMonth() + 1
-                               var date_d= date.getDate() + '/' + month + '/' + date.getFullYear();
-                            }
-                      
-                        $('#case_details').append(`<tr><td>${key+1}</td><td>${value.type_name}/${value.reg_no}/${value.reg_year}</td><td>${value.pet_name} vs ${value.res_name}</td><td>${date_d}</td><td><button type="button" class="btn btn-secondary">View</button></td></tr>`)
+                            var month = date.getMonth() + 1
+                            var date_d = date.getDate() + '-' + month + '-' + date.getFullYear();
+                        }
+
+                        $('#case_details').append(`<tr><td >${key+1}</td><td>${value.type_name}/${value.reg_no}/${value.reg_year}</td><td>${value.pet_name} vs ${value.res_name}</td><td>${date_d}</td><td><a href="${value.cino}" id="cino" class="btn btn-secondary">View</a></td></tr>`)
                     })
+                    }else{
+                       
+                        $('#case_details').append(`<tr><td style="text-align: center;font-size: larger;font-weight: 500;" colspan="5" style=>No data found</td></tr>`) 
+                    }
 
                 },
 
@@ -244,11 +292,61 @@
 
 
 
-    $(document).on('click',"#exit",function(){
+    $(document).on('click', "#exit", function() {
         $('#case_table').hide('');
         $("#dis").val('');
-         $("#police").val('');
-         $("#fir_no").val('');
+        $("#police").val('');
+        $("#fir_no").val('');
         $("#fir_year").val('');
+        $("#order_table").hide();
+        $("#display").hide();
+        $('#case_status').html('');
+    })
+
+
+    $(document).on('click', '#cino', function() {
+        event.preventDefault();
+        $('#case_status').html('');
+        $('#order_details').html('');
+        let cino = $(this).attr('href');
+        $.ajax({
+
+            // Our sample url to make request
+            url: './order.php',
+
+            // Type of Request
+            type: "GET",
+            data: {
+                cino
+            },
+
+            // Function to call when to
+            // request is ok
+            success: function(data) {
+               
+                $("#order_table").show();
+        $("#display").show();
+               data=JSON.parse(data);
+               $('#case_status').append(`<p style="font-size: larger;font-weight: 600;" id="case_status">Case No. : ${data[0].type_name}/${data[0].reg_no}/${data[0].reg_year},Petitioner/Complainent-versus Respondents/Opposite party</p>`)
+             
+                $.each(data, function(key, value) {
+                    var date = new Date(value.order_dt);
+                    if (!isNaN(date.getTime())) {
+
+                        var month = date.getMonth() + 1
+                        var date_d = date.getDate() + '-' + month + '-' + date.getFullYear();
+                    }
+
+                    $('#order_details').append(`<tr><td>${key+1}</td><td>${value.type_name}/${value.reg_no}/${value.reg_year}</td><td>${value.judge_name}</td><td>${date_d}</td><td><a href="${value.cino}" id="cino" class="btn btn-secondary">View</a></td></tr>`)
+                })
+
+            },
+
+            // Error handling
+            error: function(error) {
+                console.log(`Error ${error}`);
+            }
+        });
+
     })
 </script>

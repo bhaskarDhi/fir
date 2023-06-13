@@ -18,7 +18,7 @@ if(isset($_POST['dis']) || isset($_POST['police']) || isset($_POST['fir_no']) ||
                 echo json_encode($msg);
             }else{
                 for($i=0;$i<count($result);$i++){
-                    $sql_case="SELECT case_type_t.type_name,civil_t_a.pet_name,civil_t_a.res_name,civil_t_a.dt_regis,civil_t_a.reg_no,civil_t_a.reg_year FROM civil_t_a JOIN case_type_t ON civil_t_a.regcase_type=case_type_t.case_type WHERE civil_t_a.cino='".$result[$i]['cino']."'";
+                    $sql_case="SELECT case_type_t.type_name,civil_t_a.cino,civil_t_a.pet_name,civil_t_a.res_name,civil_t_a.dt_regis,civil_t_a.reg_no,civil_t_a.reg_year FROM civil_t_a JOIN case_type_t ON civil_t_a.regcase_type=case_type_t.case_type WHERE civil_t_a.cino='".$result[$i]['cino']."'";
                     $data_case= pg_query($dbconn, $sql_case);
                     $result_case[]=pg_fetch_object($data_case);
                 }
@@ -27,7 +27,7 @@ if(isset($_POST['dis']) || isset($_POST['police']) || isset($_POST['fir_no']) ||
         }else{
             
             for($i=0;$i<count($result);$i++){
-                $sql_case="SELECT case_type_t.type_name,civil_t.pet_name,civil_t.res_name,civil_t.dt_regis,civil_t.reg_no,civil_t.reg_year FROM civil_t JOIN case_type_t ON civil_t.regcase_type=case_type_t.case_type WHERE civil_t.cino='".$result[$i]['cino']."'";
+                $sql_case="SELECT case_type_t.type_name,civil_t.pet_name,civil_t.cino,civil_t.res_name,civil_t.dt_regis,civil_t.reg_no,civil_t.reg_year FROM civil_t JOIN case_type_t ON civil_t.regcase_type=case_type_t.case_type WHERE civil_t.cino='".$result[$i]['cino']."'";
                 $data_case= pg_query($dbconn, $sql_case);
                 $result_case[]=pg_fetch_object($data_case);
             }
